@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual envs
+venv/
+.venv/
+env/
+
+# Environment / secrets
+.env
+*.env
+
+# Data — never commit raw or processed datasets
+data/raw/
+data/processed/
+data/quarantine/
+*.parquet
+manifest.json
+
+# Reports (generated)
+reports/*.json
+reports/*.html
+
+# Notebooks / OS
+.ipynb_checkpoints/
+.DS_Store
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
