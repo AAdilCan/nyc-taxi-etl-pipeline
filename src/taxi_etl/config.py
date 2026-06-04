@@ -46,6 +46,32 @@ class Settings(BaseSettings):
     download_retries: int = Field(default=3, ge=0)
     download_backoff_s: float = Field(default=2.0, ge=0)
 
+    # --- Transformation tunables ---------------------------------------
+    # Business-rule outlier bounds applied AFTER schema validation. They
+    # remove rows that are schema-valid but physically implausible (e.g. a
+    # 4-second trip or a 250 mph average speed) so the feature output is
+    # genuinely ML-ready rather than merely well-typed.
+    min_trip_duration_min: float = Field(
+        default=0.5, ge=0,
+        description="Drop trips shorter than this (default 30s).",
+    )
+    max_trip_duration_min: float = Field(
+        default=180.0, gt=0,
+        description="Drop trips longer than this (default 3h).",
+    )
+    max_trip_speed_mph: float = Field(
+        default=100.0, gt=0,
+        description="Drop trips whose average speed exceeds this.",
+    )
+    min_fare_amount: float = Field(
+        default=0.01,
+        description="Drop non-positive fares (a useful ML target must be > 0).",
+    )
+    min_passenger_count: float = Field(
+        default=1.0, ge=0,
+        description="Drop trips reporting fewer passengers than this.",
+    )
+
     @property
     def raw_dir(self) -> Path:
         return self.data_dir / "raw"
@@ -59,6 +85,11 @@ class Settings(BaseSettings):
         return self.data_dir / "quarantine"
 
     @property
+    def features_dir(self) -> Path:
+        """Root of the partitioned, ML-ready feature dataset."""
+        return self.data_dir / "features"
+
+    @property
     def manifest_path(self) -> Path:
         """Tracks which (taxi_type, month) partitions have been ingested."""
         return self.data_dir / "manifest.json"
@@ -69,6 +100,7 @@ class Settings(BaseSettings):
             self.raw_dir,
             self.processed_dir,
             self.quarantine_dir,
+            self.features_dir,
             self.reports_dir,
         ):
             path.mkdir(parents=True, exist_ok=True)

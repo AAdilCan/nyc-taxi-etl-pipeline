@@ -19,6 +19,7 @@ env/
 data/raw/
 data/processed/
 data/quarantine/
+data/features/
 *.parquet
 manifest.json
 
