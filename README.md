@@ -37,21 +37,48 @@ download → ingest → validate → transform → partitioned parquet
 
 ```bash
 pip install -r requirements.txt
+pip install -e .            # installs the `taxi-etl` command
 
-# Profile a month of raw data (downloads ~50 MB once, cached in data/raw/)
-PYTHONPATH=src python scripts/explore_data.py --month 2024-01
+# Run the whole pipeline for one month (downloads ~50 MB once, cached in data/raw/)
+taxi-etl run --month 2024-01
+
+# Or a range, inclusive on both ends
+taxi-etl run --start 2024-01 --end 2024-03
 ```
 
-Full CLI usage and benchmark results land at the end of the week — see
-[DOCUMENTATION.md](DOCUMENTATION.md) (coming) for the deep dive.
+`run` chains ingest → validate → transform, then writes a JSON run summary and
+a Markdown data-quality report to `reports/` and prints an overview table:
+
+```
+Pipeline run summary (1 month(s), 6.2s total)
+| month   |   raw_rows |   valid_rows |   feature_rows |   retention_% |   time_s |
+|---------|------------|--------------|----------------|---------------|----------|
+| 2024-01 |    2964624 |      2964543 |        2831703 |       95.5164 |     6.23 |
+```
+
+Each stage is also runnable on its own, handy for re-running just the part that
+changed:
+
+```bash
+taxi-etl ingest    --month 2024-01     # download only
+taxi-etl validate  --month 2024-01     # validate the cached raw file
+taxi-etl transform --month 2024-01     # build the feature dataset
+```
+
+Without installing, swap `taxi-etl` for `python -m taxi_etl`. Benchmark results
+and the deep dive land at the end of the week in
+[DOCUMENTATION.md](DOCUMENTATION.md) (coming).
 
 ## Project layout
 
 ```
 src/taxi_etl/
+  cli.py             # `taxi-etl` entry point: run / ingest / validate / transform
+  pipeline.py        # orchestrates the stages and times them per month
+  reporting.py       # run summary (JSON) + data-quality report (Markdown)
   config.py          # pydantic-settings config (paths, thresholds, env overrides)
   logging_setup.py   # shared logger
-  stages/            # ingest / validate / transform (built out over the week)
+  stages/            # ingest / validate / transform
 scripts/
   explore_data.py    # one-off data profiler
 tests/               # pytest suite

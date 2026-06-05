@@ -9,6 +9,9 @@ description = "Incremental ETL pipeline for NYC TLC trip data"
 requires-python = ">=3.10"
 readme = "README.md"
 
+[project.scripts]
+taxi-etl = "taxi_etl.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
