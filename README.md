@@ -5,8 +5,10 @@ It ingests monthly parquet files, validates them against a strict schema,
 transforms them into a clean ML-ready feature table, and writes partitioned
 parquet output — with a per-stage CLI and data-quality reporting.
 
-> Work in progress — being built out over the week. See `data/manifest.json`
-> for ingested partitions and `reports/` for run summaries.
+On January 2024 (2.96M rows) it runs end-to-end in ~6 s and retains 95.5% of raw
+rows as ML-ready features, quarantining 81 schema-invalid rows and dropping
+132.8k physically implausible ones — each with an attributed reason. See
+[DOCUMENTATION.md](DOCUMENTATION.md) for the full breakdown.
 
 ## Why
 
@@ -65,9 +67,9 @@ taxi-etl validate  --month 2024-01     # validate the cached raw file
 taxi-etl transform --month 2024-01     # build the feature dataset
 ```
 
-Without installing, swap `taxi-etl` for `python -m taxi_etl`. Benchmark results
-and the deep dive land at the end of the week in
-[DOCUMENTATION.md](DOCUMENTATION.md) (coming).
+Without installing, swap `taxi-etl` for `python -m taxi_etl`. Architecture,
+methodology, benchmark results, and the engineering tradeoffs are written up in
+[DOCUMENTATION.md](DOCUMENTATION.md).
 
 ## Project layout
 
